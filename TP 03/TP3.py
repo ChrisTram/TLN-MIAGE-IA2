@@ -74,5 +74,4 @@ named_entity = get_named_entity(chunk_text)
 responses = get_response_type(text)
 
 print('Named Entity : ' + str(named_entity))
-
 print('Response type possible : ' + str(responses))
