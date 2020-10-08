@@ -114,11 +114,23 @@ def stem_prefix(word, prefixes, roots):
 # text = "Which river does the Brooklyn Bridge cross?"
 text = "Who created Wikipedia?"
 # text = "In which country does the Nile start?"
-#text = "What is the highest place of Karakoram?"
+# text = "What is the highest place of Karakoram?"
 
 chunk_text = preprocessing(text)
 named_entity = get_named_entity(chunk_text)
 responses = get_response_type(text)
 
+######### TODO
+# remove stop word
+# remove already used word
+# created -> create
+# lemmatisation
+
+# 1. exact match
+# 2. levenstein owst
+# 3. word net similarities
+
+print(text)
+print(chunk_text)
 print('Named Entity : ' + str(named_entity))
 print('Response type possible : ' + str(responses))
