@@ -6,6 +6,8 @@ from nltk.corpus import words
 from nltk.corpus import wordnet as wn
 from nltk.stem import PorterStemmer
 from nltk.stem import WordNetLemmatizer 
+from nltk.stem.snowball import SnowballStemmer
+
 def preprocessing(text):
     tokenize_text = word_tokenize(text)
     pos_tag_text = pos_tag(tokenize_text)
@@ -89,7 +91,7 @@ english_prefixes = {
 "post": "",   # e.g. post-election, post-warn
 "pre": "",    # e.g. prehistoric, pre-war
 "pro": "",    # e.g. pro-communist, pro-democracy
-"re": "",     # e.g. reconsider, redo, rewrite
+"re-": "",     # e.g. re-consider, re-do, re-write
 "semi": "",   # e.g. semicircle, semi-retired
 "sub": "",    # e.g. submarine, sub-Saharan
 "super": "",   # e.g. super-hero, supermodel
@@ -113,6 +115,19 @@ def stem_prefix(word, prefixes, roots):
             return word
     return original_word
 
+def stem_suffix(word, suffixes, roots):
+    original_word = word
+    word = lemmatizer.lemmatize(word)
+    for suffix in sorted(suffixes, key=len, reverse=True):
+        # Use subn to track the no. of substitution made.
+        # Allow dash in between prefix and root. 
+        word, nsub = re.subn("{}[\-]?".format(suffix), "", word)
+        if nsub > 0 and word in roots:
+            return word
+    return original_word
+
+
+
 porter = PorterStemmer()
 
 whitelist = list(wn.words()) + words.words()
@@ -120,6 +135,10 @@ whitelist = list(wn.words()) + words.words()
 def porter_english_plus(word, prefixes=english_prefixes):
     return porter.stem(stem_prefix(word, prefixes, whitelist))
 
+stemmer = SnowballStemmer("english")
+
+def snowball_stemmer(word, prefixes=english_prefixes):
+    return SnowballStemmer("english").stem(stem_prefix(word, prefixes, whitelist))
 
 # text = "Which river does the Brooklyn Bridge cross?"
 text = "Who created Wikipedia?"
@@ -145,11 +164,26 @@ responses = get_response_type(text)
 # print('Named Entity : ' + str(named_entity))
 # print('Response type possible : ' + str(responses))
 
-print("impossible with stem_pref : ", stem_prefix("impossible", prefixes=english_prefixes, roots=whitelist))
-print("impossible with porter : ", porter_english_plus("impossible"))
+print("running with stem_pref : ", stem_prefix("running", prefixes=english_prefixes, roots=whitelist))
+print("running with porter : ", porter_english_plus("running"))
+print("running with snowball : ", snowball_stemmer("running"))
 
 print("hyperactive with stem_pref : ", stem_prefix("hyperactive", prefixes=english_prefixes, roots=whitelist))
 print("hyperactive with porter : ", porter_english_plus("hyperactive"))
+print("hyperactive with snowball : ", snowball_stemmer("hyperactive"))
 
 print("midnight with stem_pref : ", stem_prefix("midnight", prefixes=english_prefixes, roots=whitelist))
 print("midnight with porter : ", porter_english_plus("midnight"))
+print("midnight with snowball : ", snowball_stemmer("midnight"))
+
+print("generously with stem_pref : ", stem_prefix("generously", prefixes=english_prefixes, roots=whitelist))
+print("generously with porter : ", porter_english_plus("generously"))
+print("generously with snowball : ", snowball_stemmer("generously"))
+
+print("generously with stem_pref : ", stem_prefix("generously", prefixes=english_prefixes, roots=whitelist))
+print("generously with porter : ", porter_english_plus("generously"))
+print("generously with snowball : ", snowball_stemmer("generously"))
+
+print("creating with stem_pref : ", stem_prefix("creating", prefixes=english_prefixes, roots=whitelist))
+print("creating with porter : ", porter_english_plus("creating"))
+print("creating with snowball : ", snowball_stemmer("creating"))
