@@ -1,15 +1,16 @@
 import nltk
 from nltk import ne_chunk, pos_tag
 from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
 import re
 from nltk.corpus import words
 from nltk.corpus import wordnet as wn
 from nltk.stem import PorterStemmer
-from nltk.stem import WordNetLemmatizer 
+from nltk.stem import WordNetLemmatizer
 from nltk.stem.snowball import SnowballStemmer
 
-def preprocessing(text):
-    tokenize_text = word_tokenize(text)
+
+def preprocessing(tokenize_text):
     pos_tag_text = pos_tag(tokenize_text)
     chunk_text = ne_chunk(pos_tag_text, binary=True)
 
@@ -48,13 +49,13 @@ def switch_question_type(argument):
         "who": ["person", "org"],
         "whose": [""],
         "when": ["time"],
-        "which": [""] #Prendre le mot qui vient après
+        "which": [""]  # Prendre le mot qui vient après
     }
     return switcher.get(argument, None)
 
 
+# Regex to find every word starting by 'wh'
 def get_response_type(text):
-    # Regex to find every word starting by 'wh'
     questions = re.findall(r'\bwh[a-zA-Z]+\b', text.lower())
     responses = []
 
@@ -65,7 +66,7 @@ def get_response_type(text):
             for r in res:
                 responses.append(r)
 
-    return responses
+    return responses, questions
 
 
 # From https://dictionary.cambridge.org/grammar/british-grammar/word-formation/prefixes
@@ -102,7 +103,7 @@ english_prefixes = {
 "up": "",      # e.g. upgrade, uphill
 }
 
-lemmatizer = WordNetLemmatizer() 
+lemmatizer = WordNetLemmatizer()
 
 def stem_prefix(word, prefixes, roots):
     original_word = word
@@ -115,12 +116,29 @@ def stem_prefix(word, prefixes, roots):
             return word
     return original_word
 
+
+def remove_stop_word(tokenize_text):
+    stop_words = stopwords.words('english')
+    stop_words.append('?')
+    filtered_sentence = [w for w in tokenize_text if not w in stop_words]
+    return filtered_sentence
+
+
+def remove_already_used_word(tokenise_text_without_sw, words):
+    filtered_text = []
+    for w in tokenise_text_without_sw:
+        if w.lower() not in words and w not in words:
+            filtered_text.append(w)
+
+    return filtered_text
+
+
 def stem_suffix(word, suffixes, roots):
     original_word = word
     word = lemmatizer.lemmatize(word)
     for suffix in sorted(suffixes, key=len, reverse=True):
         # Use subn to track the no. of substitution made.
-        # Allow dash in between prefix and root. 
+        # Allow dash in between prefix and root.
         word, nsub = re.subn("{}[\-]?".format(suffix), "", word)
         if nsub > 0 and word in roots:
             return word
@@ -137,9 +155,21 @@ text = "Who created Wikipedia?"
 # text = "In which country does the Nile start?"
 # text = "What is the highest place of Karakoram?"
 
-chunk_text = preprocessing(text)
+
+tokenize_text = word_tokenize(text)
+chunk_text = preprocessing(tokenize_text)
 named_entity = get_named_entity(chunk_text)
-responses = get_response_type(text)
+responses, questions_words = get_response_type(text)
+
+# Tokenize sentence without stop word
+tokenize_text_sw = remove_stop_word(tokenize_text)
+
+# List of words we already treated
+used_words = [w for w in questions_words]
+used_words += [w for w in named_entity]
+
+unused_words = remove_already_used_word(tokenize_text_sw, used_words)
+
 
 ######### TODO
 # remove stop word
@@ -150,6 +180,12 @@ responses = get_response_type(text)
 # 1. exact match
 # 2. levenstein owst
 # 3. word net similarities
+
+print(text)
+print(tokenize_text)
+print(chunk_text)
+print('\nNamed Entity : ' + str(named_entity))
+print('Response type possible : ' + str(responses))
 
 # print(text)
 # print(chunk_text)
