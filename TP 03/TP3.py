@@ -126,15 +126,7 @@ def stem_suffix(word, suffixes, roots):
             return word
     return original_word
 
-
-
-porter = PorterStemmer()
-
 whitelist = list(wn.words()) + words.words()
-
-def porter_english_plus(word, prefixes=english_prefixes):
-    return porter.stem(stem_prefix(word, prefixes, whitelist))
-
 stemmer = SnowballStemmer("english")
 
 def snowball_stemmer(word, prefixes=english_prefixes):
