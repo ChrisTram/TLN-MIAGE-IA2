@@ -9,7 +9,6 @@ from nltk.stem import PorterStemmer
 from nltk.stem import WordNetLemmatizer
 from nltk.stem.snowball import SnowballStemmer
 
-
 def preprocessing(tokenize_text):
     pos_tag_text = pos_tag(tokenize_text)
     chunk_text = ne_chunk(pos_tag_text, binary=True)
@@ -147,11 +146,15 @@ def stem_suffix(word, suffixes, roots):
 whitelist = list(wn.words()) + words.words()
 stemmer = SnowballStemmer("english")
 
-def snowball_stemmer(word, prefixes=english_prefixes):
+def snowball_with_prefix_stemmer(word, prefixes=english_prefixes):
     return SnowballStemmer("english").stem(stem_prefix(word, prefixes, whitelist))
 
+def snowball_stemmer(word, prefixes=english_prefixes):
+    return SnowballStemmer("english").stem(word)
+
+
 # text = "Which river does the Brooklyn Bridge cross?"
-text = "Who created Wikipedia?"
+text = "In which country does the Nile start?"
 # text = "In which country does the Nile start?"
 # text = "What is the highest place of Karakoram?"
 
@@ -170,6 +173,9 @@ used_words += [w for w in named_entity]
 
 unused_words = remove_already_used_word(tokenize_text_sw, used_words)
 
+stem_words= []
+for word in unused_words:
+    stem_words.append(snowball_stemmer(word))
 
 ######### TODO
 # remove stop word
@@ -192,20 +198,20 @@ print('Response type possible : ' + str(responses))
 # print('Named Entity : ' + str(named_entity))
 # print('Response type possible : ' + str(responses))
 
-print("running with stem_pref : ", stem_prefix("running", prefixes=english_prefixes, roots=whitelist))
-print("running with snowball : ", snowball_stemmer("running"))
-
-print("hyperactive with stem_pref : ", stem_prefix("hyperactive", prefixes=english_prefixes, roots=whitelist))
-print("hyperactive with snowball : ", snowball_stemmer("hyperactive"))
-
-print("midnight with stem_pref : ", stem_prefix("midnight", prefixes=english_prefixes, roots=whitelist))
-print("midnight with snowball : ", snowball_stemmer("midnight"))
-
-print("generously with stem_pref : ", stem_prefix("generously", prefixes=english_prefixes, roots=whitelist))
-print("generously with snowball : ", snowball_stemmer("generously"))
-
-print("generously with stem_pref : ", stem_prefix("generously", prefixes=english_prefixes, roots=whitelist))
-print("generously with snowball : ", snowball_stemmer("generously"))
-
-print("creating with stem_pref : ", stem_prefix("creating", prefixes=english_prefixes, roots=whitelist))
-print("creating with snowball : ", snowball_stemmer("creating"))
+#print("running with stem_pref : ", stem_prefix("running", prefixes=english_prefixes, roots=whitelist))
+#print("running with snowball : ", snowball_stemmer("running"))
+#
+#print("hyperactive with stem_pref : ", stem_prefix("hyperactive", prefixes=english_prefixes, roots=whitelist))
+#print("hyperactive with snowball : ", snowball_stemmer("hyperactive"))
+#
+#print("midnight with stem_pref : ", stem_prefix("midnight", prefixes=english_prefixes, roots=whitelist))
+#print("midnight with snowball : ", snowball_stemmer("midnight"))
+#
+#print("generously with stem_pref : ", stem_prefix("generously", prefixes=english_prefixes, roots=whitelist))
+#print("generously with snowball : ", snowball_stemmer("generously"))
+#
+#print("generously with stem_pref : ", stem_prefix("generously", prefixes=english_prefixes, roots=whitelist))
+#print("generously with snowball : ", snowball_stemmer("generously"))
+#
+#print("creating with stem_pref : ", stem_prefix("creating", prefixes=english_prefixes, roots=whitelist))
+#print("creating with snowball : ", snowball_stemmer("creating"))
