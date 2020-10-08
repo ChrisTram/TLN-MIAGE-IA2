@@ -157,25 +157,19 @@ responses = get_response_type(text)
 # print('Response type possible : ' + str(responses))
 
 print("running with stem_pref : ", stem_prefix("running", prefixes=english_prefixes, roots=whitelist))
-print("running with porter : ", porter_english_plus("running"))
 print("running with snowball : ", snowball_stemmer("running"))
 
 print("hyperactive with stem_pref : ", stem_prefix("hyperactive", prefixes=english_prefixes, roots=whitelist))
-print("hyperactive with porter : ", porter_english_plus("hyperactive"))
 print("hyperactive with snowball : ", snowball_stemmer("hyperactive"))
 
 print("midnight with stem_pref : ", stem_prefix("midnight", prefixes=english_prefixes, roots=whitelist))
-print("midnight with porter : ", porter_english_plus("midnight"))
 print("midnight with snowball : ", snowball_stemmer("midnight"))
 
 print("generously with stem_pref : ", stem_prefix("generously", prefixes=english_prefixes, roots=whitelist))
-print("generously with porter : ", porter_english_plus("generously"))
 print("generously with snowball : ", snowball_stemmer("generously"))
 
 print("generously with stem_pref : ", stem_prefix("generously", prefixes=english_prefixes, roots=whitelist))
-print("generously with porter : ", porter_english_plus("generously"))
 print("generously with snowball : ", snowball_stemmer("generously"))
 
 print("creating with stem_pref : ", stem_prefix("creating", prefixes=english_prefixes, roots=whitelist))
-print("creating with porter : ", porter_english_plus("creating"))
 print("creating with snowball : ", snowball_stemmer("creating"))
