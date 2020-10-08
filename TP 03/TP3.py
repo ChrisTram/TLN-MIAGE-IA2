@@ -5,7 +5,7 @@ import re
 from nltk.corpus import words
 from nltk.corpus import wordnet as wn
 from nltk.stem import PorterStemmer
-
+from nltk.stem import WordNetLemmatizer 
 def preprocessing(text):
     tokenize_text = word_tokenize(text)
     pos_tag_text = pos_tag(tokenize_text)
@@ -100,9 +100,11 @@ english_prefixes = {
 "up": "",      # e.g. upgrade, uphill
 }
 
+lemmatizer = WordNetLemmatizer() 
 
 def stem_prefix(word, prefixes, roots):
     original_word = word
+    word = lemmatizer.lemmatize(word)
     for prefix in sorted(prefixes, key=len, reverse=True):
         # Use subn to track the no. of substitution made.
         # Allow dash in between prefix and root. 
@@ -110,6 +112,14 @@ def stem_prefix(word, prefixes, roots):
         if nsub > 0 and word in roots:
             return word
     return original_word
+
+porter = PorterStemmer()
+
+whitelist = list(wn.words()) + words.words()
+
+def porter_english_plus(word, prefixes=english_prefixes):
+    return porter.stem(stem_prefix(word, prefixes, whitelist))
+
 
 # text = "Which river does the Brooklyn Bridge cross?"
 text = "Who created Wikipedia?"
@@ -130,7 +140,16 @@ responses = get_response_type(text)
 # 2. levenstein owst
 # 3. word net similarities
 
-print(text)
-print(chunk_text)
-print('Named Entity : ' + str(named_entity))
-print('Response type possible : ' + str(responses))
+# print(text)
+# print(chunk_text)
+# print('Named Entity : ' + str(named_entity))
+# print('Response type possible : ' + str(responses))
+
+print("impossible with stem_pref : ", stem_prefix("impossible", prefixes=english_prefixes, roots=whitelist))
+print("impossible with porter : ", porter_english_plus("impossible"))
+
+print("hyperactive with stem_pref : ", stem_prefix("hyperactive", prefixes=english_prefixes, roots=whitelist))
+print("hyperactive with porter : ", porter_english_plus("hyperactive"))
+
+print("midnight with stem_pref : ", stem_prefix("midnight", prefixes=english_prefixes, roots=whitelist))
+print("midnight with porter : ", porter_english_plus("midnight"))
