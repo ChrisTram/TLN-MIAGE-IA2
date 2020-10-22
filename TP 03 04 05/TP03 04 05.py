@@ -250,9 +250,6 @@ questions = [
     "Give me all actors starring in Last Action Hero.",
     "Who is the owner of Universal Studios?",
     "What did Bruce Carver die from?",
-
-    
-
 ]
 
 answers = [
@@ -264,7 +261,7 @@ answers = [
     ["http://dbpedia.org/resource/Art_Babbitt"],
     ["http://dbpedia.org/resource/Michael_Bloomberg"],
     ["http://dbpedia.org/resource/Mongolia", "http://dbpedia.org/resource/Russia"],
-    ["http://dbpedia.org/resource/National_Gallery_of_Norway", "http://dbpedia.org/resource/National_Gallery,_Oslo"]
+    ["http://dbpedia.org/resource/National_Gallery_of_Norway", "http://dbpedia.org/resource/National_Gallery,_Oslo"],
     ["http://dbpedia.org/resource/Kentucky", "http://dbpedia.org/resource/Missouri", "http://dbpedia.org/resource/Wisconsin", "http://dbpedia.org/resource/Indiana", "http://dbpedia.org/resource/Iowa"],
     ["http://dbpedia.org/resource/Mary_Todd_Lincoln"],
     ["http://dbpedia.org/resource/C_(programming_language)", "http://dbpedia.org/resource/GTK+"],
@@ -279,15 +276,5 @@ answers = [
     ["http://dbpedia.org/resource/Arnold_Schwarzenegger", "http://dbpedia.org/resource/Anthony_Quinn", "http://dbpedia.org/resource/F._Murray_Abraham", "http://dbpedia.org/resource/Art_Carney", "http://dbpedia.org/resource/Austin_O'Brien", "http://dbpedia.org/resource/Tom_Noonan", "http://dbpedia.org/resource/Bridgette_Wilson", "http://dbpedia.org/resource/Charles_Dance", "http://dbpedia.org/resource/Robert_Prosky"],
     ["http://dbpedia.org/resource/General_Electric", "http://dbpedia.org/resource/MCA_Inc.", "http://dbpedia.org/resource/Seagram", "http://dbpedia.org/resource/Comcast", "http://dbpedia.org/resource/NBCUniversal", "http://dbpedia.org/resource/Vivendi", "http://dbpedia.org/resource/Independent_business"],
     ["http://dbpedia.org/resource/Cancer"]
-
-
-
-
-
-
-
-
-
-
 ]
 #Nous avons remarqué que ntlk se trompe sur certains Names Entiy, comme Nile
