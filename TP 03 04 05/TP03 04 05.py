@@ -9,6 +9,7 @@ from nltk.stem import PorterStemmer
 from nltk.stem import WordNetLemmatizer
 from nltk.stem.snowball import SnowballStemmer
 
+
 def preprocessing(tokenize_text):
     pos_tag_text = pos_tag(tokenize_text)
     chunk_text = ne_chunk(pos_tag_text, binary=True)
@@ -69,39 +70,40 @@ def get_response_type(text):
 
 # From https://dictionary.cambridge.org/grammar/british-grammar/word-formation/prefixes
 english_prefixes = {
-"anti": "",    # e.g. anti-goverment, anti-racist, anti-war
-"auto": "",    # e.g. autobiography, automobile
-"de": "",      # e.g. de-classify, decontaminate, demotivate
-"dis": "",     # e.g. disagree, displeasure, disqualify
-"down": "",    # e.g. downgrade, downhearted
-"extra": "",   # e.g. extraordinary, extraterrestrial
-"hyper": "",   # e.g. hyperactive, hypertension
-"il": "",     # e.g. illegal
-"im": "",     # e.g. impossible
-"in": "",     # e.g. insecure
-"ir": "",     # e.g. irregular
-"inter": "",  # e.g. interactive, international
-"mega": "",   # e.g. megabyte, mega-deal, megaton
-"mid": "",    # e.g. midday, midnight, mid-October
-"mis": "",    # e.g. misaligned, mislead, misspelt
-"non": "",    # e.g. non-payment, non-smoking
-"over": "",  # e.g. overcook, overcharge, overrate
-"out": "",    # e.g. outdo, out-perform, outrun
-"post": "",   # e.g. post-election, post-warn
-"pre": "",    # e.g. prehistoric, pre-war
-"pro": "",    # e.g. pro-communist, pro-democracy
-"re-": "",     # e.g. re-consider, re-do, re-write
-"semi": "",   # e.g. semicircle, semi-retired
-"sub": "",    # e.g. submarine, sub-Saharan
-"super": "",   # e.g. super-hero, supermodel
-"tele": "",    # e.g. television, telephathic
-"trans": "",   # e.g. transatlantic, transfer
-"ultra": "",   # e.g. ultra-compact, ultrasound
-"un": "",      # e.g. under-cook, underestimate
-"up": "",      # e.g. upgrade, uphill
+    "anti": "",  # e.g. anti-goverment, anti-racist, anti-war
+    "auto": "",  # e.g. autobiography, automobile
+    "de": "",  # e.g. de-classify, decontaminate, demotivate
+    "dis": "",  # e.g. disagree, displeasure, disqualify
+    "down": "",  # e.g. downgrade, downhearted
+    "extra": "",  # e.g. extraordinary, extraterrestrial
+    "hyper": "",  # e.g. hyperactive, hypertension
+    "il": "",  # e.g. illegal
+    "im": "",  # e.g. impossible
+    "in": "",  # e.g. insecure
+    "ir": "",  # e.g. irregular
+    "inter": "",  # e.g. interactive, international
+    "mega": "",  # e.g. megabyte, mega-deal, megaton
+    "mid": "",  # e.g. midday, midnight, mid-October
+    "mis": "",  # e.g. misaligned, mislead, misspelt
+    "non": "",  # e.g. non-payment, non-smoking
+    "over": "",  # e.g. overcook, overcharge, overrate
+    "out": "",  # e.g. outdo, out-perform, outrun
+    "post": "",  # e.g. post-election, post-warn
+    "pre": "",  # e.g. prehistoric, pre-war
+    "pro": "",  # e.g. pro-communist, pro-democracy
+    "re-": "",  # e.g. re-consider, re-do, re-write
+    "semi": "",  # e.g. semicircle, semi-retired
+    "sub": "",  # e.g. submarine, sub-Saharan
+    "super": "",  # e.g. super-hero, supermodel
+    "tele": "",  # e.g. television, telephathic
+    "trans": "",  # e.g. transatlantic, transfer
+    "ultra": "",  # e.g. ultra-compact, ultrasound
+    "un": "",  # e.g. under-cook, underestimate
+    "up": "",  # e.g. upgrade, uphill
 }
 
 lemmatizer = WordNetLemmatizer()
+
 
 def stem_prefix(word, prefixes, roots):
     original_word = word
@@ -142,26 +144,30 @@ def stem_suffix(word, suffixes, roots):
             return word
     return original_word
 
+
 whitelist = list(wn.words()) + words.words()
 stemmer = SnowballStemmer("english")
+
 
 def snowball_with_prefix_stemmer(word, prefixes=english_prefixes):
     return SnowballStemmer("english").stem(stem_prefix(word, prefixes, whitelist))
 
+
 def snowball_stemmer(word, prefixes=english_prefixes):
     return SnowballStemmer("english").stem(word)
+
 
 # text = "which river does the Brooklyn Bridge cross?"
 # text = "In which country does the Nile start?"
 text = "What is the highest place of Karakoram?"
 
-
 tokenize_text = word_tokenize(text)
 chunk_text = preprocessing(tokenize_text)
 named_entity = get_named_entity(chunk_text)
 named_entity_normalized = []
+
 for name in named_entity:
-    named_entity_normalized.append("_".join( name.split() ))
+    named_entity_normalized.append("_".join(name.split()))
 responses, questions_words = get_response_type(text)
 
 # Tokenize sentence without stop word
@@ -171,40 +177,41 @@ tokenize_text_sw = remove_stop_word(tokenize_text)
 used_words = [w for w in questions_words]
 used_words += [w for w in named_entity]
 
+# list of word we did not use yet
 unused_words = remove_already_used_word(tokenize_text_sw, used_words)
 
-stem_words= []
+# list of the unused word chunked and stemmed
+# unused_stem_words[x][0] : the stem word
+# unused_stem_words[x][1] : the tag of the word
+unused_stem_words = []
 for word in unused_words:
-    stem_words.append(snowball_stemmer(word))
+    for chunk in chunk_text:
+        if chunk[0] == word:
+            stem = snowball_stemmer(chunk[0])
+            chunk_tuple = (stem, chunk[1])
+            unused_stem_words.append(chunk_tuple)
+
+# Sorted list of the unused word, we want to get the most useful word
+unused_word_ranking = []
+
+# The most useful tag would be the verb
+for word in unused_stem_words:
+    if word[1] == 'VBZ':
+        unused_word_ranking.append(word[0])
+
+# The second most useful tag would be JJS
+for word in unused_stem_words:
+    if word[1] == 'JJS':
+        unused_word_ranking.append(word[0])
 
 print(text)
 print(tokenize_text)
 print(chunk_text)
+
 print('\nNamed Entity : ' + str(named_entity))
 print('Response type possible : ' + str(responses))
-
-# print(text)
-# print(chunk_text)
-# print('Named Entity : ' + str(named_entity))
-# print('Response type possible : ' + str(responses))
-
-#print("running with stem_pref : ", stem_prefix("running", prefixes=english_prefixes, roots=whitelist))
-#print("running with snowball : ", snowball_stemmer("running"))
-#
-#print("hyperactive with stem_pref : ", stem_prefix("hyperactive", prefixes=english_prefixes, roots=whitelist))
-#print("hyperactive with snowball : ", snowball_stemmer("hyperactive"))
-#
-#print("midnight with stem_pref : ", stem_prefix("midnight", prefixes=english_prefixes, roots=whitelist))
-#print("midnight with snowball : ", snowball_stemmer("midnight"))
-#
-#print("generously with stem_pref : ", stem_prefix("generously", prefixes=english_prefixes, roots=whitelist))
-#print("generously with snowball : ", snowball_stemmer("generously"))
-#
-#print("generously with stem_pref : ", stem_prefix("generously", prefixes=english_prefixes, roots=whitelist))
-#print("generously with snowball : ", snowball_stemmer("generously"))
-#
-#print("creating with stem_pref : ", stem_prefix("creating", prefixes=english_prefixes, roots=whitelist))
-#print("creating with snowball : ", snowball_stemmer("creating"))
+print('Unused stem words : ' + str(unused_stem_words))
+print('Unused word ranked by tag : ' + str(unused_word_ranking))
 
 from SPARQLWrapper import SPARQLWrapper, JSON
 
@@ -215,7 +222,7 @@ PREFIX dbo: <http://dbpedia.org/ontology/>
 PREFIX res: <http://dbpedia.org/resource/>
 SELECT DISTINCT ?uri 
 WHERE {
-res:"""+ named_entity_normalized[0] + """ dbo:crosses ?uri .
+res:""" + named_entity_normalized[0] + """ dbo:crosses ?uri .
 }"""
 
 sparql.setQuery(query)
@@ -243,7 +250,7 @@ questions = [
     "Who developed the video game World of Warcraft?"
     "Who owns Aldi?",
     "What is the area code of Berlin?",
-    "When was the Battle of Gettysburg?", 
+    "When was the Battle of Gettysburg?",
     "What are the official languages of the Philippines?",
     "Give me the homepage of Forbes.",
     "Which awards did WikiLeaks win?",
@@ -254,8 +261,8 @@ questions = [
 
 answers = [
     ["http://dbpedia.org/resource/East_River"],
-    ["http://dbpedia.org/resource/Jimmy_Wales","http://dbpedia.org/resource/Larry_Sanger"],
-    ["http://dbpedia.org/resource/Ethiopia","http://dbpedia.org/resource/Ethiopia"],
+    ["http://dbpedia.org/resource/Jimmy_Wales", "http://dbpedia.org/resource/Larry_Sanger"],
+    ["http://dbpedia.org/resource/Ethiopia", "http://dbpedia.org/resource/Ethiopia"],
     ["http://dbpedia.org/resource/K2"],
     ["http://dbpedia.org/resource/John_A._Roebling", "http://dbpedia.org/resource/John_Augustus_Roebling"],
     ["http://dbpedia.org/resource/Art_Babbitt"],
@@ -272,9 +279,19 @@ answers = [
     ["1863-07-03"],
     ["http://dbpedia.org/resource/Filipino_language"],
     ["http://www.forbes.com"],
-    ["http://dbpedia.org/resource/Index_on_Censorship", "http://dbpedia.org/resource/Amnesty_International_UK_Media_Awards", "http://dbpedia.org/resource/Sam_Adams_Award"],
-    ["http://dbpedia.org/resource/Arnold_Schwarzenegger", "http://dbpedia.org/resource/Anthony_Quinn", "http://dbpedia.org/resource/F._Murray_Abraham", "http://dbpedia.org/resource/Art_Carney", "http://dbpedia.org/resource/Austin_O'Brien", "http://dbpedia.org/resource/Tom_Noonan", "http://dbpedia.org/resource/Bridgette_Wilson", "http://dbpedia.org/resource/Charles_Dance", "http://dbpedia.org/resource/Robert_Prosky"],
-    ["http://dbpedia.org/resource/General_Electric", "http://dbpedia.org/resource/MCA_Inc.", "http://dbpedia.org/resource/Seagram", "http://dbpedia.org/resource/Comcast", "http://dbpedia.org/resource/NBCUniversal", "http://dbpedia.org/resource/Vivendi", "http://dbpedia.org/resource/Independent_business"],
+    ["http://dbpedia.org/resource/Index_on_Censorship",
+     "http://dbpedia.org/resource/Amnesty_International_UK_Media_Awards",
+     "http://dbpedia.org/resource/Sam_Adams_Award"],
+    ["http://dbpedia.org/resource/Arnold_Schwarzenegger", "http://dbpedia.org/resource/Anthony_Quinn",
+     "http://dbpedia.org/resource/F._Murray_Abraham", "http://dbpedia.org/resource/Art_Carney",
+     "http://dbpedia.org/resource/Austin_O'Brien", "http://dbpedia.org/resource/Tom_Noonan",
+     "http://dbpedia.org/resource/Bridgette_Wilson", "http://dbpedia.org/resource/Charles_Dance",
+     "http://dbpedia.org/resource/Robert_Prosky"],
+    ["http://dbpedia.org/resource/General_Electric", "http://dbpedia.org/resource/MCA_Inc.",
+     "http://dbpedia.org/resource/Seagram", "http://dbpedia.org/resource/Comcast",
+     "http://dbpedia.org/resource/NBCUniversal", "http://dbpedia.org/resource/Vivendi",
+     "http://dbpedia.org/resource/Independent_business"],
     ["http://dbpedia.org/resource/Cancer"]
 ]
-#Nous avons remarqué que ntlk se trompe sur certains Names Entiy, comme Nile
+
+# Nous avons remarqué que ntlk se trompe sur certains Names Entiy, comme Nile
