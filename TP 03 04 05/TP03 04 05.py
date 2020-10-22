@@ -151,14 +151,17 @@ def snowball_with_prefix_stemmer(word, prefixes=english_prefixes):
 def snowball_stemmer(word, prefixes=english_prefixes):
     return SnowballStemmer("english").stem(word)
 
-text = "which river does the Brooklyn Bridge cross?"
+# text = "which river does the Brooklyn Bridge cross?"
 # text = "In which country does the Nile start?"
-# text = "What is the highest place of Karakoram?"
+text = "What is the highest place of Karakoram?"
 
 
 tokenize_text = word_tokenize(text)
 chunk_text = preprocessing(tokenize_text)
 named_entity = get_named_entity(chunk_text)
+named_entity_normalized = []
+for name in named_entity:
+    named_entity_normalized.append("_".join( name.split() ))
 responses, questions_words = get_response_type(text)
 
 # Tokenize sentence without stop word
@@ -173,16 +176,6 @@ unused_words = remove_already_used_word(tokenize_text_sw, used_words)
 stem_words= []
 for word in unused_words:
     stem_words.append(snowball_stemmer(word))
-
-######### TODO
-# remove stop word
-# remove already used word
-# created -> create
-# lemmatisation
-
-# 1. exact match
-# 2. levenstein owst
-# 3. word net similarities
 
 print(text)
 print(tokenize_text)
@@ -216,22 +209,37 @@ print('Response type possible : ' + str(responses))
 from SPARQLWrapper import SPARQLWrapper, JSON
 
 sparql = SPARQLWrapper("http://dbpedia.org/sparql")
-sparql.setQuery("""
+
+query = """
 PREFIX dbo: <http://dbpedia.org/ontology/>
 PREFIX res: <http://dbpedia.org/resource/>
 SELECT DISTINCT ?uri 
 WHERE {
-res:Brooklyn_Bridge dbo:crosses ?uri .
-}
-""")
+res:"""+ named_entity_normalized[0] + """ dbo:crosses ?uri .
+}"""
+
+sparql.setQuery(query)
 
 sparql.setReturnFormat(JSON)
 results = sparql.query().convert()
 
-print(results)
 for result in results["results"]["bindings"]:
     print(result["uri"]["value"])
 
+# Set root in script folder
+import os
+abspath = os.path.abspath(__file__)
+dname = os.path.dirname(abspath)
+os.chdir(dname)
 
+
+import xml.etree.ElementTree as etree
+
+parser = etree.XMLParser(encoding='utf-8', recover=True)
+
+with open("./questions.xml", 'r') as xml_file:
+    xml_tree = etree.parse(xml_file, parser)
+for assetType in xml_tree.findall("//query"):
+    print(assetType)
 
 #Nous avons remarqué que ntlk se trompe sur certains Names Entiy, comme Nile
