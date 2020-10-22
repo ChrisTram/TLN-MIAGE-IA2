@@ -157,82 +157,7 @@ def snowball_stemmer(word, prefixes=english_prefixes):
     return SnowballStemmer("english").stem(word)
 
 
-# text = "which river does the Brooklyn Bridge cross?"
-# text = "In which country does the Nile start?"
-text = "What is the highest place of Karakoram?"
-
-tokenize_text = word_tokenize(text)
-chunk_text = preprocessing(tokenize_text)
-named_entity = get_named_entity(chunk_text)
-named_entity_normalized = []
-
-for name in named_entity:
-    named_entity_normalized.append("_".join(name.split()))
-responses, questions_words = get_response_type(text)
-
-# Tokenize sentence without stop word
-tokenize_text_sw = remove_stop_word(tokenize_text)
-
-# List of words we already treated
-used_words = [w for w in questions_words]
-used_words += [w for w in named_entity]
-
-# list of word we did not use yet
-unused_words = remove_already_used_word(tokenize_text_sw, used_words)
-
-# list of the unused word chunked and stemmed
-# unused_stem_words[x][0] : the stem word
-# unused_stem_words[x][1] : the tag of the word
-unused_stem_words = []
-for word in unused_words:
-    for chunk in chunk_text:
-        if chunk[0] == word:
-            stem = snowball_stemmer(chunk[0])
-            chunk_tuple = (stem, chunk[1])
-            unused_stem_words.append(chunk_tuple)
-
-# Sorted list of the unused word, we want to get the most useful word
-unused_word_ranking = []
-
-# The most useful tag would be the verb
-for word in unused_stem_words:
-    if word[1] == 'VBZ':
-        unused_word_ranking.append(word[0])
-
-# The second most useful tag would be JJS
-for word in unused_stem_words:
-    if word[1] == 'JJS':
-        unused_word_ranking.append(word[0])
-
-print(text)
-print(tokenize_text)
-print(chunk_text)
-
-print('\nNamed Entity : ' + str(named_entity))
-print('Response type possible : ' + str(responses))
-print('Unused stem words : ' + str(unused_stem_words))
-print('Unused word ranked by tag : ' + str(unused_word_ranking))
-
-from SPARQLWrapper import SPARQLWrapper, JSON
-
-sparql = SPARQLWrapper("http://dbpedia.org/sparql")
-
-query = """
-PREFIX dbo: <http://dbpedia.org/ontology/>
-PREFIX res: <http://dbpedia.org/resource/>
-SELECT DISTINCT ?uri 
-WHERE {
-res:""" + named_entity_normalized[0] + """ dbo:crosses ?uri .
-}"""
-
-sparql.setQuery(query)
-
-sparql.setReturnFormat(JSON)
-results = sparql.query().convert()
-
-for result in results["results"]["bindings"]:
-    print(result["uri"]["value"])
-
+############################ TEXT PROCESSING ############################
 questions = [
     "Quelle cours d'eau est traversé par le pont de Brooklyn?",
     "Who created Wikipedia?",
@@ -269,9 +194,10 @@ answers = [
     ["http://dbpedia.org/resource/Art_Babbitt"],
     ["http://dbpedia.org/resource/Michael_Bloomberg"],
     ["http://dbpedia.org/resource/Mongolia", "http://dbpedia.org/resource/Russia"],
-    ["http://dbpedia.org/resource/National_Gallery_of_Norway", "http://dbpedia.org/resource/National_Gallery,_Oslo"]
-    [
-        "http://dbpedia.org/resource/Kentucky", "http://dbpedia.org/resource/Missouri", "http://dbpedia.org/resource/Wisconsin", "http://dbpedia.org/resource/Indiana", "http://dbpedia.org/resource/Iowa"],
+    ["http://dbpedia.org/resource/National_Gallery_of_Norway", "http://dbpedia.org/resource/National_Gallery,_Oslo"],
+    ["http://dbpedia.org/resource/Kentucky", "http://dbpedia.org/resource/Missouri",
+     "http://dbpedia.org/resource/Wisconsin", "http://dbpedia.org/resource/Indiana",
+     "http://dbpedia.org/resource/Iowa"],
     ["http://dbpedia.org/resource/Mary_Todd_Lincoln"],
     ["http://dbpedia.org/resource/C_(programming_language)", "http://dbpedia.org/resource/GTK+"],
     ["http://dbpedia.org/resource/Canada"],
@@ -297,4 +223,94 @@ answers = [
 
 ]
 
+question = questions[10]
+answer = answers[10]
+
+tokenize_text = word_tokenize(question)
+chunk_text = preprocessing(tokenize_text)
+named_entity = get_named_entity(chunk_text)
+named_entity_normalized = []
+
+for name in named_entity:
+    named_entity_normalized.append("_".join(name.split()))
+responses, questions_words = get_response_type(question)
+
+# Tokenize sentence without stop word
+tokenize_text_sw = remove_stop_word(tokenize_text)
+
+# List of words we already treated
+used_words = [w for w in questions_words]
+used_words += [w for w in named_entity]
+
+# list of word we did not use yet
+unused_words = remove_already_used_word(tokenize_text_sw, used_words)
+
+# list of the unused word chunked and stemmed
+# unused_stem_words[x][0] : the stem word
+# unused_stem_words[x][1] : the tag of the word
+unused_stem_words = []
+for word in unused_words:
+    for chunk in chunk_text:
+        if chunk[0] == word:
+            stem = snowball_stemmer(chunk[0])
+            chunk_tuple = (stem, chunk[1])
+            unused_stem_words.append(chunk_tuple)
+
+# Sorted list of the unused word, we want to get the most useful word
+unused_word_ranking = []
+
+# The most useful tag would be the verb
+for word in unused_stem_words:
+    if word[1] == 'VBZ':
+        unused_word_ranking.append(word[0])
+
+# The second most useful tag would be JJS
+for word in unused_stem_words:
+    if word[1] == 'JJS':
+        unused_word_ranking.append(word[0])
+
+for word in unused_stem_words:
+    if word[1] == 'NN':
+        unused_word_ranking.append(word[0])
+
+print(question)
+print(tokenize_text)
+print(chunk_text)
+
+print('\nNamed Entity : ' + str(named_entity))
+print('Response type possible : ' + str(responses))
+print('Unused stem words : ' + str(unused_stem_words))
+print('Unused word ranked by tag : ' + str(unused_word_ranking))
+
+############################ Query ############################
+
+from SPARQLWrapper import SPARQLWrapper, JSON
+
+sparql = SPARQLWrapper("http://dbpedia.org/sparql")
+
+query = None
+
+if len(named_entity_normalized) != 0 and len(unused_word_ranking) != 0:
+    query = """
+    PREFIX dbo: <http://dbpedia.org/ontology/>
+    PREFIX res: <http://dbpedia.org/resource/>
+    SELECT DISTINCT ?uri 
+    WHERE {
+    res:""" + named_entity_normalized[0] + """ dbo:""" + unused_word_ranking[0] + """ ?uri .
+    }"""
+
+    print(query)
+
+sparql.setQuery(query)
+
+sparql.setReturnFormat(JSON)
+results = sparql.query().convert()
+
+print('Our answer : ')
+
+for result in results["results"]["bindings"]:
+    print(result["uri"]["value"])
+
+
+print('\nTrue answer : \n' + str(answer))
 # Nous avons remarqué que ntlk se trompe sur certains Names Entiy, comme Nile
