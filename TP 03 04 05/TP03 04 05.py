@@ -313,4 +313,4 @@ for result in results["results"]["bindings"]:
 
 
 print('\nTrue answer : \n' + str(answer))
-# Nous avons remarqué que ntlk se trompe sur certains Names Entiy, comme Nile
+# Nous avons remarqué que ntlk se trompe sur certains Names Entiy, comme Nile.
