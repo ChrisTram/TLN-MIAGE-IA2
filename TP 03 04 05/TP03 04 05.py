@@ -229,11 +229,65 @@ for result in results["results"]["bindings"]:
 questions = [
     "Quelle cours d'eau est traversé par le pont de Brooklyn?",
     "Who created Wikipedia?",
+    "In which country does the Nile start?",
+    "What is the highest place of Karakoram?",
+    "Who designed the Brooklyn Bridge?",
+    "Who created Goofy?",
+    "Who is the mayor of New York City?",
+    "Through which countries does the Yenisei river flow?",
+    "Which museum exhibits The Scream by Munch?",
+    "Which states border Illinois?",
+    "Who was the wife of U.S. president Lincoln?",
+    "In which programming language is GIMP written?",
+    "In which country is the Limerick Lake?",
+    "Who developed the video game World of Warcraft?"
+    "Who owns Aldi?",
+    "What is the area code of Berlin?",
+    "When was the Battle of Gettysburg?", 
+    "What are the official languages of the Philippines?",
+    "Give me the homepage of Forbes.",
+    "Which awards did WikiLeaks win?",
+    "Give me all actors starring in Last Action Hero.",
+    "Who is the owner of Universal Studios?",
+    "What did Bruce Carver die from?",
+
+    
 
 ]
 
 answers = [
     ["http://dbpedia.org/resource/East_River"],
-    ["http://dbpedia.org/resource/Jimmy_Wales","http://dbpedia.org/resource/Larry_Sanger"]
+    ["http://dbpedia.org/resource/Jimmy_Wales","http://dbpedia.org/resource/Larry_Sanger"],
+    ["http://dbpedia.org/resource/Ethiopia","http://dbpedia.org/resource/Ethiopia"],
+    ["http://dbpedia.org/resource/K2"],
+    ["http://dbpedia.org/resource/John_A._Roebling", "http://dbpedia.org/resource/John_Augustus_Roebling"],
+    ["http://dbpedia.org/resource/Art_Babbitt"],
+    ["http://dbpedia.org/resource/Michael_Bloomberg"],
+    ["http://dbpedia.org/resource/Mongolia", "http://dbpedia.org/resource/Russia"],
+    ["http://dbpedia.org/resource/National_Gallery_of_Norway", "http://dbpedia.org/resource/National_Gallery,_Oslo"]
+    ["http://dbpedia.org/resource/Kentucky", "http://dbpedia.org/resource/Missouri", "http://dbpedia.org/resource/Wisconsin", "http://dbpedia.org/resource/Indiana", "http://dbpedia.org/resource/Iowa"],
+    ["http://dbpedia.org/resource/Mary_Todd_Lincoln"],
+    ["http://dbpedia.org/resource/C_(programming_language)", "http://dbpedia.org/resource/GTK+"],
+    ["http://dbpedia.org/resource/Canada"],
+    ["http://dbpedia.org/resource/Blizzard_Entertainment"],
+    ["http://dbpedia.org/resource/Karl_Albrecht", "http://dbpedia.org/resource/Theo_Albrecht"],
+    ["030"],
+    ["1863-07-03"],
+    ["http://dbpedia.org/resource/Filipino_language"],
+    ["http://www.forbes.com"],
+    ["http://dbpedia.org/resource/Index_on_Censorship", "http://dbpedia.org/resource/Amnesty_International_UK_Media_Awards", "http://dbpedia.org/resource/Sam_Adams_Award"],
+    ["http://dbpedia.org/resource/Arnold_Schwarzenegger", "http://dbpedia.org/resource/Anthony_Quinn", "http://dbpedia.org/resource/F._Murray_Abraham", "http://dbpedia.org/resource/Art_Carney", "http://dbpedia.org/resource/Austin_O'Brien", "http://dbpedia.org/resource/Tom_Noonan", "http://dbpedia.org/resource/Bridgette_Wilson", "http://dbpedia.org/resource/Charles_Dance", "http://dbpedia.org/resource/Robert_Prosky"],
+    ["http://dbpedia.org/resource/General_Electric", "http://dbpedia.org/resource/MCA_Inc.", "http://dbpedia.org/resource/Seagram", "http://dbpedia.org/resource/Comcast", "http://dbpedia.org/resource/NBCUniversal", "http://dbpedia.org/resource/Vivendi", "http://dbpedia.org/resource/Independent_business"],
+    ["http://dbpedia.org/resource/Cancer"]
+
+
+
+
+
+
+
+
+
+
 ]
 #Nous avons remarqué que ntlk se trompe sur certains Names Entiy, comme Nile
