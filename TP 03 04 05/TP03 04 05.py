@@ -213,29 +213,6 @@ print('Response type possible : ' + str(responses))
 print('Unused stem words : ' + str(unused_stem_words))
 print('Unused word ranked by tag : ' + str(unused_word_ranking))
 
-# print(text)
-# print(chunk_text)
-# print('Named Entity : ' + str(named_entity))
-# print('Response type possible : ' + str(responses))
-
-#print("running with stem_pref : ", stem_prefix("running", prefixes=english_prefixes, roots=whitelist))
-#print("running with snowball : ", snowball_stemmer("running"))
-#
-#print("hyperactive with stem_pref : ", stem_prefix("hyperactive", prefixes=english_prefixes, roots=whitelist))
-#print("hyperactive with snowball : ", snowball_stemmer("hyperactive"))
-#
-#print("midnight with stem_pref : ", stem_prefix("midnight", prefixes=english_prefixes, roots=whitelist))
-#print("midnight with snowball : ", snowball_stemmer("midnight"))
-#
-#print("generously with stem_pref : ", stem_prefix("generously", prefixes=english_prefixes, roots=whitelist))
-#print("generously with snowball : ", snowball_stemmer("generously"))
-#
-#print("generously with stem_pref : ", stem_prefix("generously", prefixes=english_prefixes, roots=whitelist))
-#print("generously with snowball : ", snowball_stemmer("generously"))
-#
-#print("creating with stem_pref : ", stem_prefix("creating", prefixes=english_prefixes, roots=whitelist))
-#print("creating with snowball : ", snowball_stemmer("creating"))
-
 from SPARQLWrapper import SPARQLWrapper, JSON
 
 sparql = SPARQLWrapper("http://dbpedia.org/sparql")
@@ -245,7 +222,7 @@ PREFIX dbo: <http://dbpedia.org/ontology/>
 PREFIX res: <http://dbpedia.org/resource/>
 SELECT DISTINCT ?uri 
 WHERE {
-res:"""+ named_entity_normalized[0] + """ dbo:crosses ?uri .
+res:""" + named_entity_normalized[0] + """ dbo:crosses ?uri .
 }"""
 
 sparql.setQuery(query)
@@ -281,21 +258,20 @@ questions = [
     "Who is the owner of Universal Studios?",
     "What did Bruce Carver die from?",
 
-
-
 ]
 
 answers = [
     ["http://dbpedia.org/resource/East_River"],
-    ["http://dbpedia.org/resource/Jimmy_Wales","http://dbpedia.org/resource/Larry_Sanger"],
-    ["http://dbpedia.org/resource/Ethiopia","http://dbpedia.org/resource/Ethiopia"],
+    ["http://dbpedia.org/resource/Jimmy_Wales", "http://dbpedia.org/resource/Larry_Sanger"],
+    ["http://dbpedia.org/resource/Ethiopia", "http://dbpedia.org/resource/Ethiopia"],
     ["http://dbpedia.org/resource/K2"],
     ["http://dbpedia.org/resource/John_A._Roebling", "http://dbpedia.org/resource/John_Augustus_Roebling"],
     ["http://dbpedia.org/resource/Art_Babbitt"],
     ["http://dbpedia.org/resource/Michael_Bloomberg"],
     ["http://dbpedia.org/resource/Mongolia", "http://dbpedia.org/resource/Russia"],
     ["http://dbpedia.org/resource/National_Gallery_of_Norway", "http://dbpedia.org/resource/National_Gallery,_Oslo"]
-    ["http://dbpedia.org/resource/Kentucky", "http://dbpedia.org/resource/Missouri", "http://dbpedia.org/resource/Wisconsin", "http://dbpedia.org/resource/Indiana", "http://dbpedia.org/resource/Iowa"],
+    [
+        "http://dbpedia.org/resource/Kentucky", "http://dbpedia.org/resource/Missouri", "http://dbpedia.org/resource/Wisconsin", "http://dbpedia.org/resource/Indiana", "http://dbpedia.org/resource/Iowa"],
     ["http://dbpedia.org/resource/Mary_Todd_Lincoln"],
     ["http://dbpedia.org/resource/C_(programming_language)", "http://dbpedia.org/resource/GTK+"],
     ["http://dbpedia.org/resource/Canada"],
@@ -305,19 +281,19 @@ answers = [
     ["1863-07-03"],
     ["http://dbpedia.org/resource/Filipino_language"],
     ["http://www.forbes.com"],
-    ["http://dbpedia.org/resource/Index_on_Censorship", "http://dbpedia.org/resource/Amnesty_International_UK_Media_Awards", "http://dbpedia.org/resource/Sam_Adams_Award"],
-    ["http://dbpedia.org/resource/Arnold_Schwarzenegger", "http://dbpedia.org/resource/Anthony_Quinn", "http://dbpedia.org/resource/F._Murray_Abraham", "http://dbpedia.org/resource/Art_Carney", "http://dbpedia.org/resource/Austin_O'Brien", "http://dbpedia.org/resource/Tom_Noonan", "http://dbpedia.org/resource/Bridgette_Wilson", "http://dbpedia.org/resource/Charles_Dance", "http://dbpedia.org/resource/Robert_Prosky"],
-    ["http://dbpedia.org/resource/General_Electric", "http://dbpedia.org/resource/MCA_Inc.", "http://dbpedia.org/resource/Seagram", "http://dbpedia.org/resource/Comcast", "http://dbpedia.org/resource/NBCUniversal", "http://dbpedia.org/resource/Vivendi", "http://dbpedia.org/resource/Independent_business"],
+    ["http://dbpedia.org/resource/Index_on_Censorship",
+     "http://dbpedia.org/resource/Amnesty_International_UK_Media_Awards",
+     "http://dbpedia.org/resource/Sam_Adams_Award"],
+    ["http://dbpedia.org/resource/Arnold_Schwarzenegger", "http://dbpedia.org/resource/Anthony_Quinn",
+     "http://dbpedia.org/resource/F._Murray_Abraham", "http://dbpedia.org/resource/Art_Carney",
+     "http://dbpedia.org/resource/Austin_O'Brien", "http://dbpedia.org/resource/Tom_Noonan",
+     "http://dbpedia.org/resource/Bridgette_Wilson", "http://dbpedia.org/resource/Charles_Dance",
+     "http://dbpedia.org/resource/Robert_Prosky"],
+    ["http://dbpedia.org/resource/General_Electric", "http://dbpedia.org/resource/MCA_Inc.",
+     "http://dbpedia.org/resource/Seagram", "http://dbpedia.org/resource/Comcast",
+     "http://dbpedia.org/resource/NBCUniversal", "http://dbpedia.org/resource/Vivendi",
+     "http://dbpedia.org/resource/Independent_business"],
     ["http://dbpedia.org/resource/Cancer"]
-
-
-
-
-
-
-
-
-
 
 ]
 
