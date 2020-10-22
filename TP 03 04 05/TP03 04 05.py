@@ -17,7 +17,6 @@ def preprocessing(tokenize_text):
 
 
 def get_named_entity(chunk_text):
-    prev = None
     continuous_chunk = []
     current_chunk = []
 
@@ -152,9 +151,7 @@ def snowball_with_prefix_stemmer(word, prefixes=english_prefixes):
 def snowball_stemmer(word, prefixes=english_prefixes):
     return SnowballStemmer("english").stem(word)
 
-
-# text = "Which river does the Brooklyn Bridge cross?"
-text = "In which country does the Nile start?"
+text = "which river does the Brooklyn Bridge cross?"
 # text = "In which country does the Nile start?"
 # text = "What is the highest place of Karakoram?"
 
@@ -215,3 +212,26 @@ print('Response type possible : ' + str(responses))
 #
 #print("creating with stem_pref : ", stem_prefix("creating", prefixes=english_prefixes, roots=whitelist))
 #print("creating with snowball : ", snowball_stemmer("creating"))
+
+from SPARQLWrapper import SPARQLWrapper, JSON
+
+sparql = SPARQLWrapper("http://dbpedia.org/sparql")
+sparql.setQuery("""
+PREFIX dbo: <http://dbpedia.org/ontology/>
+PREFIX res: <http://dbpedia.org/resource/>
+SELECT DISTINCT ?uri 
+WHERE {
+res:Brooklyn_Bridge dbo:crosses ?uri .
+}
+""")
+
+sparql.setReturnFormat(JSON)
+results = sparql.query().convert()
+
+print(results)
+for result in results["results"]["bindings"]:
+    print(result["uri"]["value"])
+
+
+
+#Nous avons remarqué que ntlk se trompe sur certains Names Entiy, comme Nile
