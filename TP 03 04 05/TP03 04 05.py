@@ -226,20 +226,14 @@ results = sparql.query().convert()
 for result in results["results"]["bindings"]:
     print(result["uri"]["value"])
 
-# Set root in script folder
-import os
-abspath = os.path.abspath(__file__)
-dname = os.path.dirname(abspath)
-os.chdir(dname)
+questions = [
+    "Quelle cours d'eau est traversé par le pont de Brooklyn?",
+    "Who created Wikipedia?",
 
+]
 
-import xml.etree.ElementTree as etree
-
-parser = etree.XMLParser(encoding='utf-8', recover=True)
-
-with open("./questions.xml", 'r') as xml_file:
-    xml_tree = etree.parse(xml_file, parser)
-for assetType in xml_tree.findall("//query"):
-    print(assetType)
-
+answers = [
+    ["http://dbpedia.org/resource/East_River"],
+    ["http://dbpedia.org/resource/Jimmy_Wales","http://dbpedia.org/resource/Larry_Sanger"]
+]
 #Nous avons remarqué que ntlk se trompe sur certains Names Entiy, comme Nile
