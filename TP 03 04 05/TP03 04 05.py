@@ -1,3 +1,5 @@
+import string
+
 from nltk import ne_chunk, pos_tag
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
@@ -5,6 +7,7 @@ from nltk.stem import WordNetLemmatizer
 
 import re
 import spacy_model.en_core_web_sm.en_core_web_sm as en_core_web_sm
+
 
 def preprocessing(tokenize_text):
     pos_tag_text = pos_tag(tokenize_text)
@@ -14,15 +17,13 @@ def preprocessing(tokenize_text):
 
 
 def get_named_entity(text):
-
-
     nlp = en_core_web_sm.load()
     doc = nlp(text)
 
     named_entity = []
 
     for ent in doc.ents:
-        print(ent.text, ent.label_)
+        # print(ent.text, ent.label_)
         named_entity.append(ent.text)
 
     return named_entity
@@ -59,12 +60,12 @@ def get_response_type(text):
 lemmatizer = WordNetLemmatizer()
 
 
-def stemmer(word):
-    from nltk.stem import PorterStemmer
-
-    ps = PorterStemmer()
-    print(ps.stem(word))
-    return ps.stem(word)
+def lemmatizer(word):
+    import nltk
+    lemma = nltk.wordnet.WordNetLemmatizer()
+    print(word)
+    print(lemma.lemmatize(word))
+    return lemma.lemmatize(word)
 
 
 def remove_stop_word(tokenize_text):
@@ -149,17 +150,17 @@ answers = [
 
 ]
 
-question = questions[11]
-answer = answers[11]
+question_index = 4
+question = questions[question_index]
+answer = answers[question_index]
 
 tokenize_text = word_tokenize(question)
 chunk_text = preprocessing(tokenize_text)
-# named_entity = get_named_entity(chunk_text)
-named_entity = get_named_entity(question)
-named_entity_normalized = []
 
-for name in named_entity:
-    named_entity_normalized.append("_".join(name.split()))
+# Get named entity using spacy
+named_entity = get_named_entity(question)
+
+# Get the type of response we could have
 responses, questions_words = get_response_type(question)
 
 # Tokenize sentence without stop word
@@ -172,32 +173,50 @@ used_words += [w for w in named_entity]
 # list of word we did not use yet
 unused_words = remove_already_used_word(tokenize_text_sw, used_words)
 
-# list of the unused word chunked and stemmed
-# unused_stem_words[x][0] : the stem word
-# unused_stem_words[x][1] : the tag of the word
-unused_stem_words = []
+# list of the unused word chunked and lemmatized
+# unused_lemmatized_words[x][0] : the stem word
+# unused_lemmatized_words[x][1] : the tag of the word
+unused_lemmatized_words = []
 for word in unused_words:
     for chunk in chunk_text:
         if chunk[0] == word:
-            stem = stemmer(chunk[0])
-            chunk_tuple = (stem, chunk[1])
-            unused_stem_words.append(chunk_tuple)
+            lemm = lemmatizer(chunk[0])
+            chunk_tuple = (lemm, chunk[1])
+            unused_lemmatized_words.append(chunk_tuple)  # lemmatized
+            # unused_stem_words.append(chunk)
 
 # Sorted list of the unused word, we want to get the most useful word
 unused_word_ranking = []
 
 # The most useful tag would be the verb
-for word in unused_stem_words:
+for word in unused_lemmatized_words:
     if (word[1] == 'VBZ' or word[1] == 'JJS' or word[1] == 'NN'
-            or word[1] == 'NNS'):
+            or word[1] == 'NNS' or word[1] == 'VBG' or word[1] == 'VBD'):
         unused_word_ranking.append(word[0])
+
+res = ""
+if len(named_entity) > 0:
+    res = named_entity[0].replace(" ", "_")
+    for i in range(1, len(named_entity)):
+        print(named_entity[i].replace(" ", "_"))
+        res += "_" + named_entity[i].replace(" ", "_")
+
+dbo = ""
+if len(unused_word_ranking) > 0:
+    # The string we will use for the query
+    dbo = unused_word_ranking[0]
+    for i in range(1, len(unused_word_ranking)):
+        dbo += unused_word_ranking[i].capitalize()
 
 print(question)
 
 print('\nNamed Entity : ' + str(named_entity))
 print('Response type possible : ' + str(responses))
-print('Unused stem words : ' + str(unused_stem_words))
+print('Unused lemmatized words : ' + str(unused_lemmatized_words))
 print('Unused word ranked by tag : ' + str(unused_word_ranking))
+
+print(dbo)
+print(res)
 
 ############################ Query ############################
 
@@ -207,28 +226,26 @@ sparql = SPARQLWrapper("http://dbpedia.org/sparql")
 
 query = None
 
-if len(named_entity_normalized) != 0 and len(unused_word_ranking) != 0:
+if len(named_entity) != 0 and len(unused_word_ranking) != 0:
     query = """
     PREFIX dbo: <http://dbpedia.org/ontology/>
     PREFIX res: <http://dbpedia.org/resource/>
     SELECT DISTINCT ?uri 
     WHERE {
-    res:""" + named_entity_normalized[0] + """ dbo:""" + unused_word_ranking[0] + """ ?uri .
+    res:""" + res + """ dbo:""" + dbo + """ ?uri .
     }"""
-
-    print(query)
 
 print(query)
 
-sparql.setQuery(query)
+if query is not None:
+    sparql.setQuery(query)
 
-sparql.setReturnFormat(JSON)
-results = sparql.query().convert()
+    sparql.setReturnFormat(JSON)
+    results = sparql.query().convert()
 
-print('Our answer : ')
+    print('Our answer : ')
 
-for result in results["results"]["bindings"]:
-    print(result["uri"]["value"])
+    for result in results["results"]["bindings"]:
+        print(result["uri"]["value"])
 
 print('\nTrue answer : \n' + str(answer))
-# Nous avons remarqué que ntlk se trompe sur certains Names Entiy, comme Nile.
