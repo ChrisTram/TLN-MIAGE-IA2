@@ -229,8 +229,8 @@ answers = [
 
 ]
 
-question = questions[17]
-answer = answers[17]
+question = questions[20]
+answer = answers[20]
 
 tokenize_text = word_tokenize(question)
 chunk_text = preprocessing(tokenize_text)
