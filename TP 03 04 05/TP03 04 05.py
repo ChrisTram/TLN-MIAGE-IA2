@@ -193,8 +193,8 @@ answers = [
 
 ]
 
-question = questions[19]
-answer = answers[19]
+question = questions[20]
+answer = answers[20]
 
 tokenize_text = word_tokenize(question)
 chunk_text = preprocessing(tokenize_text)
@@ -224,15 +224,14 @@ for word in unused_words:
         if chunk[0] == word:
             stem = stemmer(chunk[0])
             chunk_tuple = (stem, chunk[1])
-            unused_stem_words.append(chunk_tuple)  # NOT STEM ANYMORE !!!!!!!!!!!!!!!!!!!!!!
+            unused_stem_words.append(chunk_tuple)  
 
 # Sorted list of the unused word, we want to get the most useful word
 unused_word_ranking = []
 
 # The most useful tag would be the verb
 for word in unused_stem_words:
-    if (word[1] == 'VBZ' or word[1] == 'JJS' or word[1] == 'NN'
-        or word[1] == 'NNS'):
+    if (word[1] == 'VBZ' or word[1] == 'JJS' or word[1] == 'NN' or word[1] == 'NNS'):
         unused_word_ranking.append(word[0])
     
 print(question)
@@ -261,7 +260,6 @@ if len(named_entity_normalized) != 0 and len(unused_word_ranking) != 0:
 
     print(query)
 
-print(query)
 
 sparql.setQuery(query)
 
