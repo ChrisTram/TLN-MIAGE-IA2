@@ -10,7 +10,8 @@ Then we have a list of the unused word chunked and lemmatized. We want to get th
 
 We build our queries with all our results, then we print and stock the answers in a variable. We display all of them in the end with the stats.
 
-Sometimes we got the exact same queries but don't have any results, for example : res:Karakoram dbo:highestPlace ?uri .
+
+**Sometimes we got the exact same queries but don't have any results, for example : res:Karakoram dbo:highestPlace ?uri .**
 
 # A result example : 
 
