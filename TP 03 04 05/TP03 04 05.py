@@ -6,6 +6,7 @@ from nltk.stem import WordNetLemmatizer
 import re
 import spacy_model.en_core_web_sm.en_core_web_sm as en_core_web_sm
 
+
 def preprocessing(tokenize_text):
     pos_tag_text = pos_tag(tokenize_text)
     chunk_text = ne_chunk(pos_tag_text, binary=True)
@@ -57,8 +58,6 @@ def get_response_type(text):
 def lemmatizer(word):
     import nltk
     lemma = nltk.wordnet.WordNetLemmatizer()
-    print(word)
-    print(lemma.lemmatize(word))
     return lemma.lemmatize(word)
 
 
@@ -78,7 +77,107 @@ def remove_already_used_word(tokenise_text_without_sw, words):
     return filtered_text
 
 
-############################ TEXT PROCESSING ############################
+def get_answers(question_index, questions):
+    question = questions[question_index]
+
+    ############################ TEXT PROCESSING ############################
+
+    tokenize_text = word_tokenize(question)
+    chunk_text = preprocessing(tokenize_text)
+
+    # Get named entity using spacy
+    named_entity = get_named_entity(question)
+    named_entity_normalized = []
+
+    # Get the type of response we could have
+    responses, questions_words = get_response_type(question)
+
+    # Tokenize sentence without stop word
+    tokenize_text_sw = remove_stop_word(tokenize_text)
+
+    # List of words we already treated
+    used_words = [w for w in questions_words]
+    used_words += [w for w in named_entity]
+
+    # list of word we did not use yet
+    unused_words = remove_already_used_word(tokenize_text_sw, used_words)
+
+    # list of the unused word chunked and lemmatized
+    # unused_lemmatized_words[x][0] : the stem word
+    # unused_lemmatized_words[x][1] : the tag of the word
+    unused_lemmatized_words = []
+    for word in unused_words:
+        for chunk in chunk_text:
+            if chunk[0] == word:
+                lemm = lemmatizer(chunk[0])
+                chunk_tuple = (lemm, chunk[1])
+                unused_lemmatized_words.append(chunk_tuple)  # lemmatized
+                # unused_stem_words.append(chunk)
+
+    # Sorted list of the unused word, we want to get the most useful word
+    unused_word_ranking = []
+
+    # The most useful tag would be the verb
+    for word in unused_lemmatized_words:
+        if (word[1] == 'VBZ' or word[1] == 'JJS' or word[1] == 'NN'
+                or word[1] == 'NNS' or word[1] == 'VBG' or word[1] == 'VBD'):
+            unused_word_ranking.append(word[0])
+
+    res = ""
+    if len(named_entity) > 0:
+        res = named_entity[0].replace(" ", "_")
+        for i in range(1, len(named_entity)):
+            print(named_entity[i].replace(" ", "_"))
+            res += "_" + named_entity[i].replace(" ", "_")
+
+    dbo = ""
+    if len(unused_word_ranking) > 0:
+        # The string we will use for the query
+        dbo = unused_word_ranking[0]
+        for i in range(1, len(unused_word_ranking)):
+            dbo += unused_word_ranking[i].capitalize()
+
+    print(question)
+
+    print('\nNamed Entity : ' + str(named_entity))
+    print('Response type possible : ' + str(responses))
+    print('Unused lemmatized words : ' + str(unused_lemmatized_words))
+    print('Unused word ranked by tag : ' + str(unused_word_ranking))
+
+    ############################ Query ############################
+
+    from SPARQLWrapper import SPARQLWrapper, JSON
+
+    sparql = SPARQLWrapper("http://dbpedia.org/sparql")
+
+    query = None
+
+    if res != "" and dbo != "":
+        query = """
+        PREFIX dbo: <http://dbpedia.org/ontology/>
+        PREFIX res: <http://dbpedia.org/resource/>
+        SELECT DISTINCT ?uri 
+        WHERE {
+        res:""" + res + """ dbo:""" + dbo + """ ?uri .
+        }"""
+
+    print(query)
+
+    if query is not None:
+        answers_query = []
+        sparql.setQuery(query)
+
+        sparql.setReturnFormat(JSON)
+        results = sparql.query().convert()
+
+        for result in results["results"]["bindings"]:
+            print(result["uri"]["value"])
+            answers_query.append(result["uri"]["value"])
+
+        return answers_query
+    return []
+
+
 questions = [
     "Which river does the Brooklyn Bridge cross?",
     "Who created Wikipedia?",
@@ -144,116 +243,40 @@ answers = [
 
 ]
 
+system_answers = []
 
-def get_answers(question_index):
-    question = questions[question_index]
-    answer = answers[question_index]
-
-    tokenize_text = word_tokenize(question)
-    chunk_text = preprocessing(tokenize_text)
-
-    # Get named entity using spacy
-    named_entity = get_named_entity(question)
-    named_entity_normalized = []
-
-    # Get the type of response we could have
-    responses, questions_words = get_response_type(question)
-
-    # Tokenize sentence without stop word
-    tokenize_text_sw = remove_stop_word(tokenize_text)
-
-    # List of words we already treated
-    used_words = [w for w in questions_words]
-    used_words += [w for w in named_entity]
-
-    # list of word we did not use yet
-    unused_words = remove_already_used_word(tokenize_text_sw, used_words)
-
-    # list of the unused word chunked and lemmatized
-    # unused_lemmatized_words[x][0] : the stem word
-    # unused_lemmatized_words[x][1] : the tag of the word
-    unused_lemmatized_words = []
-    for word in unused_words:
-        for chunk in chunk_text:
-            if chunk[0] == word:
-                lemm = lemmatizer(chunk[0])
-                chunk_tuple = (lemm, chunk[1])
-                unused_lemmatized_words.append(chunk_tuple)  # lemmatized
-                # unused_stem_words.append(chunk)
-
-    # Sorted list of the unused word, we want to get the most useful word
-    unused_word_ranking = []
-
-    # The most useful tag would be the verb
-    for word in unused_lemmatized_words:
-        if (word[1] == 'VBZ' or word[1] == 'JJS' or word[1] == 'NN'
-                or word[1] == 'NNS' or word[1] == 'VBG' or word[1] == 'VBD'):
-            unused_word_ranking.append(word[0])
-
-    res = ""
-    if len(named_entity) > 0:
-        res = named_entity[0].replace(" ", "_")
-        for i in range(1, len(named_entity)):
-            print(named_entity[i].replace(" ", "_"))
-            res += "_" + named_entity[i].replace(" ", "_")
-
-    dbo = ""
-    if len(unused_word_ranking) > 0:
-        # The string we will use for the query
-        dbo = unused_word_ranking[0]
-        for i in range(1, len(unused_word_ranking)):
-            dbo += unused_word_ranking[i].capitalize()
-
-    print(question)
-
-    print('\nNamed Entity : ' + str(named_entity))
-    print('Response type possible : ' + str(responses))
-    print('Unused lemmatized words : ' + str(unused_lemmatized_words))
-    print('Unused word ranked by tag : ' + str(unused_word_ranking))
+for i in range(len(questions)):
+    system_answers.append(get_answers(i, questions))
 
 
-    ############################ Query ############################
+nb_gold_standard_answers = len(answers)
 
-    from SPARQLWrapper import SPARQLWrapper, JSON
-
-    sparql = SPARQLWrapper("http://dbpedia.org/sparql")
-
-    query = None
-
-    if len(named_entity) != 0 and len(unused_word_ranking) != 0:
-        query = """
-        PREFIX dbo: <http://dbpedia.org/ontology/>
-        PREFIX res: <http://dbpedia.org/resource/>
-        SELECT DISTINCT ?uri 
-        WHERE {
-        res:""" + res + """ dbo:""" + dbo + """ ?uri .
-        }"""
-
-    print(query)
-
-    if query is not None:
-        answers_query = []
-        sparql.setQuery(query)
-
-        sparql.setReturnFormat(JSON)
-        results = sparql.query().convert()
-
-        print('Our answer : ')
-
-        for result in results["results"]["bindings"]:
-            print(result["uri"]["value"])
-            answers_query.append(result["uri"]["value"])
-
-        return answers_query
-    print('\nTrue answer : \n' + str(answer))
-    return None
+nb_system_answers = 0
+for a in system_answers:
+    if len(a) > 0:
+        nb_system_answers += 1
 
 
-question_index = 0
-all_answers = []
-while question_index < len(questions):
-    all_answers.append(get_answers(question_index))
+nb_correct_system_answers = 0
+for i in range(len(answers)):
+    j = 0
+    for a in system_answers[i]:
+        if a in answers[i]:
+            j += 1
+    if j > 0 and j == len(answers[i]):
+        nb_correct_system_answers += 1
 
-    question_index += 1
+recall = nb_correct_system_answers/nb_gold_standard_answers
+precision = nb_correct_system_answers/nb_system_answers
+f_measure = (2 * precision * recall)/(precision + recall)
 
-print(all_answers)
+print('Number of system answers : ' + str(nb_system_answers))
+print('Number of correct system answers : ' + str(nb_correct_system_answers))
+print('Number of gold standard answers : ' + str(nb_gold_standard_answers))
+print('\nRecall : ' + str(recall))
+print('Precision : ' + str(precision))
+print('F-measure : ' + str(f_measure))
+
+
+
+
