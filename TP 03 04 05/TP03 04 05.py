@@ -144,6 +144,7 @@ def get_answers(question_index, questions):
     print('Unused lemmatized words : ' + str(unused_lemmatized_words))
     print('Unused word ranked by tag : ' + str(unused_word_ranking))
 
+
     ############################ Query ############################
 
     from SPARQLWrapper import SPARQLWrapper, JSON
