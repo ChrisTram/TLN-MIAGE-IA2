@@ -1,5 +1,3 @@
-import string
-
 from nltk import ne_chunk, pos_tag
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
@@ -159,6 +157,7 @@ chunk_text = preprocessing(tokenize_text)
 
 # Get named entity using spacy
 named_entity = get_named_entity(question)
+named_entity_normalized = []
 
 # Get the type of response we could have
 responses, questions_words = get_response_type(question)
@@ -215,8 +214,6 @@ print('Response type possible : ' + str(responses))
 print('Unused lemmatized words : ' + str(unused_lemmatized_words))
 print('Unused word ranked by tag : ' + str(unused_word_ranking))
 
-print(dbo)
-print(res)
 
 ############################ Query ############################
 
