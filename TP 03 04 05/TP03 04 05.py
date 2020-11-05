@@ -57,8 +57,6 @@ def get_response_type(text):
 def lemmatizer(word):
     import nltk
     lemma = nltk.wordnet.WordNetLemmatizer()
-    print(word)
-    print(lemma.lemmatize(word))
     return lemma.lemmatize(word)
 
 
@@ -246,7 +244,7 @@ def get_answers(question_index):
 
         return answers_query
     print('\nTrue answer : \n' + str(answer))
-    return None
+    return []
 
 
 question_index = 0
