@@ -277,7 +277,3 @@ print('Number of gold standard answers : ' + str(nb_gold_standard_answers))
 print('\nRecall : ' + str(recall))
 print('Precision : ' + str(precision))
 print('F-measure : ' + str(f_measure))
-
-
-
-
