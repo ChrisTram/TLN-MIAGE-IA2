@@ -159,7 +159,7 @@ def snowball_stemmer(word, prefixes=english_prefixes):
 
 ############################ TEXT PROCESSING ############################
 questions = [
-    "Quelle cours d'eau est traversé par le pont de Brooklyn?",
+    "Which river does the Brooklyn Bridge cross?",
     "Who created Wikipedia?",
     "In which country does the Nile start?",
     "What is the highest place of Karakoram?",
@@ -169,7 +169,7 @@ questions = [
     "Through which countries does the Yenisei river flow?",
     "Which museum exhibits The Scream by Munch?",
     "Which states border Illinois?",
-    "Who was the wife of U.S. president Lincoln?",
+    "Who was the wife of US president Lincoln?",
     "In which programming language is GIMP written?",
     "In which country is the Limerick Lake?",
     "Who developed the video game World of Warcraft?"
@@ -223,8 +223,8 @@ answers = [
 
 ]
 
-question = questions[10]
-answer = answers[10]
+question = questions[20]
+answer = answers[20]
 
 tokenize_text = word_tokenize(question)
 chunk_text = preprocessing(tokenize_text)
@@ -254,7 +254,7 @@ for word in unused_words:
         if chunk[0] == word:
             stem = snowball_stemmer(chunk[0])
             chunk_tuple = (stem, chunk[1])
-            unused_stem_words.append(chunk_tuple)
+            unused_stem_words.append(chunk) # NOT STEM ANYMORE !!!!!!!!!!!!!!!!!!!!!!
 
 # Sorted list of the unused word, we want to get the most useful word
 unused_word_ranking = []
@@ -274,8 +274,6 @@ for word in unused_stem_words:
         unused_word_ranking.append(word[0])
 
 print(question)
-print(tokenize_text)
-print(chunk_text)
 
 print('\nNamed Entity : ' + str(named_entity))
 print('Response type possible : ' + str(responses))
