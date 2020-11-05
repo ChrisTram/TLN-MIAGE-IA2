@@ -22,7 +22,10 @@ def get_named_entity(text):
 
     for ent in doc.ents:
         # print(ent.text, ent.label_)
-        named_entity.append(ent.text)
+        ne = ent.text
+        ne = ne.replace('the ', '')
+        ne = ne.replace('The ', '')
+        named_entity.append(ne)
 
     return named_entity
 
@@ -120,7 +123,8 @@ def get_answers(question_index, questions):
     # The most useful tag would be the verb
     for word in unused_lemmatized_words:
         if (word[1] == 'VBZ' or word[1] == 'JJS' or word[1] == 'NN'
-                or word[1] == 'NNS' or word[1] == 'VBG' or word[1] == 'VBD'):
+                or word[1] == 'NNS' or word[1] == 'VBG' or word[1] == 'VBD'
+                or word[1] == 'JJ'):
             unused_word_ranking.append(word[0])
 
     res = ""
@@ -137,6 +141,8 @@ def get_answers(question_index, questions):
         for i in range(1, len(unused_word_ranking)):
             dbo += unused_word_ranking[i].capitalize()
 
+
+    print("####################################")
     print(question)
 
     print('\nNamed Entity : ' + str(named_entity))
@@ -161,6 +167,7 @@ def get_answers(question_index, questions):
         WHERE {
         res:""" + res + """ dbo:""" + dbo + """ ?uri .
         }"""
+
 
     print(query)
 
@@ -264,7 +271,7 @@ for i in range(len(answers)):
     for a in system_answers[i]:
         if a in answers[i]:
             j += 1
-    if j > 0 and j == len(answers[i]):
+    if j > 0 and j >= len(answers[i]):
         nb_correct_system_answers += 1
 
 recall = nb_correct_system_answers/nb_gold_standard_answers
