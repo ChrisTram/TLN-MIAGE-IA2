@@ -187,7 +187,7 @@ questions = [
     "Which awards did WikiLeaks win?",
     "Give me all actors starring in Last Action Hero.",
     "Who is the owner of Universal Studios?",
-    "What did Bruce Carver die from?",
+    "What did Bruce Carver die from?"
 
 ]
 
@@ -229,8 +229,8 @@ answers = [
 
 ]
 
-question = questions[20]
-answer = answers[20]
+question = questions[17]
+answer = answers[17]
 
 tokenize_text = word_tokenize(question)
 chunk_text = preprocessing(tokenize_text)
@@ -267,18 +267,10 @@ unused_word_ranking = []
 
 # The most useful tag would be the verb
 for word in unused_stem_words:
-    if word[1] == 'VBZ':
+    if (word[1] == 'VBZ' or word[1] == 'JJS' or word[1] == 'NN'
+        or word[1] == 'NNS'):
         unused_word_ranking.append(word[0])
-
-# The second most useful tag would be JJS
-for word in unused_stem_words:
-    if word[1] == 'JJS':
-        unused_word_ranking.append(word[0])
-
-for word in unused_stem_words:
-    if word[1] == 'NN':
-        unused_word_ranking.append(word[0])
-
+    
 print(question)
 
 print('\nNamed Entity : ' + str(named_entity))
