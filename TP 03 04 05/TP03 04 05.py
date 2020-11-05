@@ -61,8 +61,6 @@ lemmatizer = WordNetLemmatizer()
 def lemmatizer(word):
     import nltk
     lemma = nltk.wordnet.WordNetLemmatizer()
-    print(word)
-    print(lemma.lemmatize(word))
     return lemma.lemmatize(word)
 
 
@@ -149,7 +147,7 @@ answers = [
 ]
 
 
-question_index = 4
+question_index = 0
 question = questions[question_index]
 answer = answers[question_index]
 
@@ -158,7 +156,6 @@ chunk_text = preprocessing(tokenize_text)
 
 # Get named entity using spacy
 named_entity = get_named_entity(question)
-named_entity_normalized = []
 
 # Get the type of response we could have
 responses, questions_words = get_response_type(question)
@@ -194,6 +191,7 @@ for word in unused_lemmatized_words:
             or word[1] == 'NNS' or word[1] == 'VBG' or word[1] == 'VBD'):
         unused_word_ranking.append(word[0])
 
+# The string we will use for the query
 res = ""
 if len(named_entity) > 0:
     res = named_entity[0].replace(" ", "_")
@@ -201,9 +199,9 @@ if len(named_entity) > 0:
         print(named_entity[i].replace(" ", "_"))
         res += "_" + named_entity[i].replace(" ", "_")
 
+# The string we will use for the query
 dbo = ""
 if len(unused_word_ranking) > 0:
-    # The string we will use for the query
     dbo = unused_word_ranking[0]
     for i in range(1, len(unused_word_ranking)):
         dbo += unused_word_ranking[i].capitalize()
