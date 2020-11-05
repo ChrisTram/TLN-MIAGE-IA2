@@ -54,9 +54,6 @@ def get_response_type(text):
     return responses, questions
 
 
-lemmatizer = WordNetLemmatizer()
-
-
 def lemmatizer(word):
     import nltk
     lemma = nltk.wordnet.WordNetLemmatizer()
