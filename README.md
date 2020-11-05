@@ -1,3 +1,5 @@
+# This is the work of Chris TRAMIER and Mael GIESE
+
 # TLN-MIAGE-IA2
 
 We have several functions to process the text, then we tokenize it.
