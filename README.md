@@ -29,11 +29,12 @@ Unused word ranked by tag : ['owner']
 Our answer : 
 http://dbpedia.org/resource/Comcast
 
-Number of system answers : 4
-Number of correct system answers : 3
+
+Number of system answers : 5
+Number of correct system answers : 4
 Number of gold standard answers : 23
 
-Recall : 0.13043478260869565
-Precision : 0.75
-F-measure : 0.22222222222222218
+Recall : 0.17391304347826086
+Precision : 0.8
+F-measure : 0.2857142857142857
 ```
