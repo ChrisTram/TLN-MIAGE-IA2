@@ -1,13 +1,10 @@
-import nltk
 from nltk import ne_chunk, pos_tag
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
-import re
-from nltk.corpus import words
-from nltk.corpus import wordnet as wn
-from nltk.stem import PorterStemmer
 from nltk.stem import WordNetLemmatizer
-from nltk.stem.snowball import SnowballStemmer
+
+import re
+import spacy_model.en_core_web_sm.en_core_web_sm as en_core_web_sm
 
 def preprocessing(tokenize_text):
     pos_tag_text = pos_tag(tokenize_text)
@@ -16,27 +13,19 @@ def preprocessing(tokenize_text):
     return chunk_text
 
 
-def get_named_entity(chunk_text):
-    continuous_chunk = []
-    current_chunk = []
+def get_named_entity(text):
 
-    for i in chunk_text:
-        if type(i) == nltk.Tree:
-            current_chunk.append(" ".join([token for token, pos in i.leaves()]))
-        elif current_chunk:
-            named_entity = " ".join(current_chunk)
-            if named_entity not in continuous_chunk:
-                continuous_chunk.append(named_entity)
-                current_chunk = []
-        else:
-            continue
-    if current_chunk:
-        named_entity = " ".join(current_chunk)
-        if named_entity not in continuous_chunk:
-            continuous_chunk.append(named_entity)
-            current_chunk = []
 
-    return continuous_chunk
+    nlp = en_core_web_sm.load()
+    doc = nlp(text)
+
+    named_entity = []
+
+    for ent in doc.ents:
+        print(ent.text, ent.label_)
+        named_entity.append(ent.text)
+
+    return named_entity
 
 
 def switch_question_type(argument):
@@ -67,41 +56,8 @@ def get_response_type(text):
     return responses, questions
 
 
-# From https://dictionary.cambridge.org/grammar/british-grammar/word-formation/prefixes
-english_prefixes = {
-    "anti": "",  # e.g. anti-goverment, anti-racist, anti-war
-    "auto": "",  # e.g. autobiography, automobile
-    "de": "",  # e.g. de-classify, decontaminate, demotivate
-    "dis": "",  # e.g. disagree, displeasure, disqualify
-    "down": "",  # e.g. downgrade, downhearted
-    "extra": "",  # e.g. extraordinary, extraterrestrial
-    "hyper": "",  # e.g. hyperactive, hypertension
-    "il": "",  # e.g. illegal
-    "im": "",  # e.g. impossible
-    "in": "",  # e.g. insecure
-    "ir": "",  # e.g. irregular
-    "inter": "",  # e.g. interactive, international
-    "mega": "",  # e.g. megabyte, mega-deal, megaton
-    "mid": "",  # e.g. midday, midnight, mid-October
-    "mis": "",  # e.g. misaligned, mislead, misspelt
-    "non": "",  # e.g. non-payment, non-smoking
-    "over": "",  # e.g. overcook, overcharge, overrate
-    "out": "",  # e.g. outdo, out-perform, outrun
-    "post": "",  # e.g. post-election, post-warn
-    "pre": "",  # e.g. prehistoric, pre-war
-    "pro": "",  # e.g. pro-communist, pro-democracy
-    "re-": "",  # e.g. re-consider, re-do, re-write
-    "semi": "",  # e.g. semicircle, semi-retired
-    "sub": "",  # e.g. submarine, sub-Saharan
-    "super": "",  # e.g. super-hero, supermodel
-    "tele": "",  # e.g. television, telephathic
-    "trans": "",  # e.g. transatlantic, transfer
-    "ultra": "",  # e.g. ultra-compact, ultrasound
-    "un": "",  # e.g. under-cook, underestimate
-    "up": "",  # e.g. upgrade, uphill
-}
-
 lemmatizer = WordNetLemmatizer()
+
 
 def stemmer(word):
     from nltk.stem import PorterStemmer
@@ -193,12 +149,13 @@ answers = [
 
 ]
 
-question = questions[19]
-answer = answers[19]
+question = questions[11]
+answer = answers[11]
 
 tokenize_text = word_tokenize(question)
 chunk_text = preprocessing(tokenize_text)
-named_entity = get_named_entity(chunk_text)
+# named_entity = get_named_entity(chunk_text)
+named_entity = get_named_entity(question)
 named_entity_normalized = []
 
 for name in named_entity:
@@ -224,7 +181,7 @@ for word in unused_words:
         if chunk[0] == word:
             stem = stemmer(chunk[0])
             chunk_tuple = (stem, chunk[1])
-            unused_stem_words.append(chunk_tuple)  # NOT STEM ANYMORE !!!!!!!!!!!!!!!!!!!!!!
+            unused_stem_words.append(chunk_tuple)
 
 # Sorted list of the unused word, we want to get the most useful word
 unused_word_ranking = []
@@ -232,9 +189,9 @@ unused_word_ranking = []
 # The most useful tag would be the verb
 for word in unused_stem_words:
     if (word[1] == 'VBZ' or word[1] == 'JJS' or word[1] == 'NN'
-        or word[1] == 'NNS'):
+            or word[1] == 'NNS'):
         unused_word_ranking.append(word[0])
-    
+
 print(question)
 
 print('\nNamed Entity : ' + str(named_entity))
@@ -267,8 +224,6 @@ sparql.setQuery(query)
 
 sparql.setReturnFormat(JSON)
 results = sparql.query().convert()
-
-
 
 print('Our answer : ')
 
