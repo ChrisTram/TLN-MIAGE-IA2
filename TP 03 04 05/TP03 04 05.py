@@ -9,6 +9,12 @@ from nltk.stem import PorterStemmer
 from nltk.stem import WordNetLemmatizer
 from nltk.stem.snowball import SnowballStemmer
 
+#nltk.download('wordnet')
+#nltk.download('words')
+#nltk.download('punkt')
+#nltk.download('averaged_perceptron_tagger')
+#nltk.download('maxent_ne_chunker')
+#nltk.download('stopwords')
 
 def preprocessing(tokenize_text):
     pos_tag_text = pos_tag(tokenize_text)
@@ -172,7 +178,7 @@ questions = [
     "Who was the wife of US president Lincoln?",
     "In which programming language is GIMP written?",
     "In which country is the Limerick Lake?",
-    "Who developed the video game World of Warcraft?"
+    "Who developed the video game World of Warcraft?",
     "Who owns Aldi?",
     "What is the area code of Berlin?",
     "When was the Battle of Gettysburg?",
