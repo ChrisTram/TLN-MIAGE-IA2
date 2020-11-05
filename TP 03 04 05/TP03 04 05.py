@@ -9,13 +9,6 @@ from nltk.stem import PorterStemmer
 from nltk.stem import WordNetLemmatizer
 from nltk.stem.snowball import SnowballStemmer
 
-#nltk.download('wordnet')
-#nltk.download('words')
-#nltk.download('punkt')
-#nltk.download('averaged_perceptron_tagger')
-#nltk.download('maxent_ne_chunker')
-#nltk.download('stopwords')
-
 def preprocessing(tokenize_text):
     pos_tag_text = pos_tag(tokenize_text)
     chunk_text = ne_chunk(pos_tag_text, binary=True)
@@ -110,17 +103,12 @@ english_prefixes = {
 
 lemmatizer = WordNetLemmatizer()
 
+def stemmer(word):
+    from nltk.stem import PorterStemmer
 
-def stem_prefix(word, prefixes, roots):
-    original_word = word
-    word = lemmatizer.lemmatize(word)
-    for prefix in sorted(prefixes, key=len, reverse=True):
-        # Use subn to track the no. of substitution made.
-        # Allow dash in between prefix and root. 
-        word, nsub = re.subn("{}[\-]?".format(prefix), "", word)
-        if nsub > 0 and word in roots:
-            return word
-    return original_word
+    ps = PorterStemmer()
+    print(ps.stem(word))
+    return ps.stem(word)
 
 
 def remove_stop_word(tokenize_text):
@@ -137,30 +125,6 @@ def remove_already_used_word(tokenise_text_without_sw, words):
             filtered_text.append(w)
 
     return filtered_text
-
-
-def stem_suffix(word, suffixes, roots):
-    original_word = word
-    word = lemmatizer.lemmatize(word)
-    for suffix in sorted(suffixes, key=len, reverse=True):
-        # Use subn to track the no. of substitution made.
-        # Allow dash in between prefix and root.
-        word, nsub = re.subn("{}[\-]?".format(suffix), "", word)
-        if nsub > 0 and word in roots:
-            return word
-    return original_word
-
-
-whitelist = list(wn.words()) + words.words()
-stemmer = SnowballStemmer("english")
-
-
-def snowball_with_prefix_stemmer(word, prefixes=english_prefixes):
-    return SnowballStemmer("english").stem(stem_prefix(word, prefixes, whitelist))
-
-
-def snowball_stemmer(word, prefixes=english_prefixes):
-    return SnowballStemmer("english").stem(word)
 
 
 ############################ TEXT PROCESSING ############################
@@ -229,8 +193,8 @@ answers = [
 
 ]
 
-question = questions[20]
-answer = answers[20]
+question = questions[19]
+answer = answers[19]
 
 tokenize_text = word_tokenize(question)
 chunk_text = preprocessing(tokenize_text)
@@ -258,9 +222,9 @@ unused_stem_words = []
 for word in unused_words:
     for chunk in chunk_text:
         if chunk[0] == word:
-            stem = snowball_stemmer(chunk[0])
+            stem = stemmer(chunk[0])
             chunk_tuple = (stem, chunk[1])
-            unused_stem_words.append(chunk) # NOT STEM ANYMORE !!!!!!!!!!!!!!!!!!!!!!
+            unused_stem_words.append(chunk_tuple)  # NOT STEM ANYMORE !!!!!!!!!!!!!!!!!!!!!!
 
 # Sorted list of the unused word, we want to get the most useful word
 unused_word_ranking = []
@@ -305,16 +269,19 @@ if len(named_entity_normalized) != 0 and len(unused_word_ranking) != 0:
 
     print(query)
 
+print(query)
+
 sparql.setQuery(query)
 
 sparql.setReturnFormat(JSON)
 results = sparql.query().convert()
 
+
+
 print('Our answer : ')
 
 for result in results["results"]["bindings"]:
     print(result["uri"]["value"])
-
 
 print('\nTrue answer : \n' + str(answer))
 # Nous avons remarqué que ntlk se trompe sur certains Names Entiy, comme Nile.
